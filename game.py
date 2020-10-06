@@ -7,8 +7,11 @@ SCREEN_TITLE = "Move Sprite with Keyboard Example"
 SCREEN_BUFFER = 50
 
 CHARACTER_SCALING = 0.5
+LASER_SCALING = 0.4
 
 MOVEMENT_SPEED = 5
+LASER_SPEED = 8
+LASER_DAMAGE = 10
 
 # Player class (controls movement and stuff?)
 class Player(arcade.Sprite):
@@ -26,6 +29,23 @@ class Player(arcade.Sprite):
             self.bottom = SCREEN_BUFFER
         elif self.top > SCREEN_HEIGHT - SCREEN_BUFFER:
             self.top = SCREEN_HEIGHT - SCREEN_BUFFER
+
+class Weapon(arcade.Sprite):
+
+    def __init__(self, filename, scale, speed, damage):
+        super().__init__(filename,scale)
+        self.speed = speed
+        self.damage = damage
+    
+    def fire(self, x_pos, y_pos):
+        self.center_y = y_pos
+        self.center_x = x_pos
+
+    def update(self):
+        self.center_x += self.speed
+
+
+
     
 class MyGame(arcade.Window):
 
@@ -41,11 +61,10 @@ class MyGame(arcade.Window):
         file_path = os.path.dirname(os.path.abspath(__file__))
         os.chdir(file_path)
 
-        # variable that holds the player sprite
-        self.player_sprite = None
-
-        # list of players
-        self.player_list = None
+        # Sprite Lists
+        self.player_sprite = None       # variable that holds the player sprite
+        self.player_list = None         # list of players
+        self.laser_list = None          # list of lasers from player
 
     def setup(self):
         """
@@ -54,6 +73,7 @@ class MyGame(arcade.Window):
 
         # Set up the sprite list
         self.player_list = arcade.SpriteList()
+        self.laser_list = arcade.SpriteList()
 
         # Setup the player
         image_source = ":resources:images/space_shooter/playerShip1_orange.png"
@@ -68,16 +88,24 @@ class MyGame(arcade.Window):
 
         arcade.start_render()
 
-        # draws the player to the screen
+        # draws the player and the lasers to the screen
         self.player_list.draw()
+        self.laser_list.draw()
     
     def on_update(self, delta_time):
         """ Movement and Game Logic """
 
         self.player_list.update()
+        self.laser_list.update()
+
+        # removes lasers off screen
+        for laser in self.laser_list:
+            if laser.left > SCREEN_WIDTH:
+                laser.remove_from_sprite_lists()
 
     def on_key_press(self, key, modifiers):
-
+        
+        # Start moving player
         if key == arcade.key.W:
             self.player_sprite.change_y = MOVEMENT_SPEED
         elif key == arcade.key.S:
@@ -87,11 +115,22 @@ class MyGame(arcade.Window):
         elif key == arcade.key.A:
             self.player_sprite.change_x = -MOVEMENT_SPEED
 
+        # Bullet logic
+        # creates a laser
+        if key == arcade.key.ENTER:
+            laser = Weapon(':resources:images/space_shooter/laserBlue01.png',LASER_SCALING,LASER_SPEED,LASER_DAMAGE)
+            laser.fire(self.player_sprite.center_x,self.player_sprite.center_y)
+            self.laser_list.append(laser)
+
     def on_key_release(self, key, modifiers):
+
+        # stop moving player
         if key == arcade.key.W or key == arcade.key.S:
             self.player_sprite.change_y = 0
         elif key == arcade.key.A or key == arcade.key.D:
             self.player_sprite.change_x = 0
+    
+
 
 
 def main():
