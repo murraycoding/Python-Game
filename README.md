@@ -9,5 +9,8 @@ This game will be a side view space shooter game. The player may move forward or
 The game window opens and the player ship renders to the screen. It can then move up, down, left and right. It also limits itself to the edges of the screen. I have also made the player stop before the top and bottom of the screens to leave space for a UI for game information.
 
 ### October 6, 2020
-The player can now shoot lasers and the lasers are removed from the game once they are off screen.
+The player can now shoot lasers and the lasers are removed from the game once they are off screen. By the end of the day, enemies were generated with a random position on the right hand side of the screen with a random speed. The player is also able to shoot the enemies and they would disappear once shot. If any enemy was shot, then a new random enemy was generate on the left hand side of the screen.
+
+### October 7, 2020
+Before, enemies were only eliminated by being shot. Now, if an enemy moves past the player (off screen to the left) then it is considered "eliminated" and a new enemy appears on the right hand side of the screen. As of right now, only 10 randomly generated enemies are on screen at once. The enemies can also fire back at the player. If an enemy laser hits the player, it is removed from the screen and an action can occur (such as damage to the player). 
 
