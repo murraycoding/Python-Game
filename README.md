@@ -16,3 +16,6 @@ Before, enemies were only eliminated by being shot. Now, if an enemy moves past 
 
 ### October 8, 2020
 The player now can pick up extra health, the health will generate randomly on screen and be erased after 5 seconds. A new enemy class was also introduced. I also created a generic power up class for later use in weapon upgrades.
+
+### October 9, 2020
+Weapons Upgrades planned and enemy types also planned. Next week, I plan to impliment these and create an end game sequence. Also started thinking about how to up the difficulty over time.
