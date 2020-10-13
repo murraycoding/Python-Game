@@ -111,7 +111,16 @@ class Enemy_Laser_Basic(Laser):
     def update(self):
         self.center_x -= self.speed
 
-    
+# Player double laser
+class Player_Double_Laser():
+
+    def fire(self, x_pos, y_pos):
+        laser_1 = Player_Laser_Basic()
+        laser_1.fire(x_pos, y_pos - 20)
+        laser_2 = Player_Laser_Basic()
+        laser_2.fire(x_pos, y_pos + 20)
+        return [laser_1,laser_2]
+        
 # Enemy Class
 class Enemy(arcade.Sprite):
 
@@ -172,7 +181,7 @@ class MyGame(arcade.Window):
 
         # Resets player
         image_source = ":resources:images/space_shooter/playerShip1_orange.png"
-        self.player_sprite = Player(image_source, CHARACTER_SCALING, 100, PLAYER_SPEED, Player_Laser_Basic())
+        self.player_sprite = Player(image_source, CHARACTER_SCALING, 100, PLAYER_SPEED, Player_Double_Laser())
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 128
         self.player_sprite.turn_right(90)
@@ -340,9 +349,9 @@ class MyGame(arcade.Window):
 
         # creates a laser
         if key == arcade.key.ENTER:
-            laser = Player_Laser_Basic()
-            laser.fire(self.player_sprite.center_x,self.player_sprite.center_y)
-            self.player_laser_list.append(laser)
+            lasers = Player_Double_Laser().fire(self.player_sprite.center_x, self.player_sprite.center_y)
+            self.player_laser_list.append(lasers[0])
+            self.player_laser_list.append(lasers[1])
     
     def on_key_release(self, key, modifiers):
 
