@@ -31,12 +31,13 @@ POWER_UP_SCALE = 0.5
 class Player(arcade.Sprite):
 
     # initialize player
-    def __init__(self, filename, scale, health, speed, weapon, shield=None):
+    def __init__(self, filename, scale, health, speed, weapon, shield=None, weapon_time=0):
         super().__init__(filename, scale)
         self.health = health
         self.speed = speed
         self.weapon = weapon
         self.sheild = shield
+        self.weapon_time = weapon_time
 
     # handles movement of player
     def update(self):
@@ -68,10 +69,9 @@ class Laser(arcade.Sprite):
 # base class for all pick up things (shields, weapon bonus, health, etc.)
 class Power_Up(arcade.Sprite):
 
-    def __init__(self, filename, scale, display_time, effect_time):
+    def __init__(self, filename, scale, display_time):
         super().__init__(filename, scale)
         self.display_time = display_time
-        self.effect_time = effect_time
         self.time_existed = 0
     
     def spawn(self, x_pos, y_pos):
@@ -91,7 +91,7 @@ class Power_Up(arcade.Sprite):
 class Health(Power_Up):
 
     def __init__(self):
-        super().__init__(filename=':resources:images/items/keyGreen.png',scale=POWER_UP_SCALE, display_time = 5, effect_time = None)
+        super().__init__(filename=':resources:images/items/keyGreen.png',scale=POWER_UP_SCALE, display_time = 5)
         self.power = 10
     
     def spawn(self):
@@ -101,7 +101,7 @@ class Health(Power_Up):
 class double_laser_powerup(Power_Up):
 
     def __init__(self):
-        super().__init__(filename=':resources:images/items/coinSilver.png',scale=POWER_UP_SCALE,display_time = 5, effect_time = 10)
+        super().__init__(filename=':resources:images/items/coinSilver.png',scale=POWER_UP_SCALE,display_time = 5)
 
 # Starting Weapon
 class Player_Laser_Basic(Laser):
@@ -123,6 +123,9 @@ class Enemy_Laser_Basic(Laser):
 
 # Player double laser
 class Player_Double_Laser():
+
+    def __init__(self, effect_time=10):
+        self.effect_time = effect_time
 
     def fire(self, x_pos, y_pos):
         laser_1 = Player_Laser_Basic()
@@ -210,14 +213,29 @@ class MyGame(arcade.Window):
     # Custom Game Methods
 
     # checks for player collisions with other things
-    def process_player_actions(self):
+    def process_player_actions(self, delta_time):
         """ checks to see if the player has collided with stuff and handles logic """
 
         # checks to see if the player has earned an upgrade
         for double_laser in self.double_laser_upgrade_list:
             if check_for_collision(self.player_sprite, double_laser):
-                self.player_sprite.weapon = Player_Double_Laser()
+                weapon_upgrade = Player_Double_Laser()
+                self.player_sprite.weapon = weapon_upgrade
+                self.player_sprite.weapon_time = weapon_upgrade.effect_time
                 double_laser.remove_from_sprite_lists()
+
+        # checks for player collision with any enemies
+        for enemy in self.enemy_list:
+            if check_for_collision(enemy, self.player_sprite):
+                self.player_sprite.health -= 5
+                enemy.remove_from_sprite_lists()
+
+        # calculates weapon upgrade effect time
+        self.player_sprite.weapon_time -= delta_time
+
+        # takes weapon away if time is over
+        if self.player_sprite.weapon_time < 0:
+            self.player_sprite.weapon = Player_Laser_Basic()
 
     # checks for collisions for all player lasers
     def process_player_lasers(self):
@@ -304,9 +322,7 @@ class MyGame(arcade.Window):
 
         # check to see if any power ups need to be removed due to time
         for double_laser in self.double_laser_upgrade_list:
-
             double_laser.update(delta_time)
-
 
     def health_logic(self, delta_time):
         """ logic to deistribute health on the board """
@@ -344,7 +360,7 @@ class MyGame(arcade.Window):
         self.process_player_lasers()
         self.process_enemy_lasers()
         self.health_logic(delta_time)
-        self.process_player_actions()
+        self.process_player_actions(delta_time)
         self.power_up_logic(delta_time)
 
         # maintains 10 enemies on the screen at all times
