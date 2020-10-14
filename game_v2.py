@@ -4,6 +4,7 @@ import random
 from arcade.color import SCARLET
 
 from arcade.gui import UIManager
+from arcade.sprite_list import check_for_collision
 
 # CONSTANTS
 SCREEN_WIDTH = 1200
@@ -73,9 +74,9 @@ class Power_Up(arcade.Sprite):
         self.effect_time = effect_time
         self.time_existed = 0
     
-    def spawn(self):
-        self.center_x = random.randint(300, SCREEN_WIDTH-50)
-        self.center_y = random.randint(SCREEN_BUFFER+50, SCREEN_HEIGHT-SCREEN_BUFFER-50)
+    def spawn(self, x_pos, y_pos):
+        self.center_x = x_pos
+        self.center_y = y_pos
 
     def drop(self, x_pos, y_pos):
         self.center_x = x_pos
@@ -92,6 +93,15 @@ class Health(Power_Up):
     def __init__(self):
         super().__init__(filename=':resources:images/items/keyGreen.png',scale=POWER_UP_SCALE, display_time = 5, effect_time = None)
         self.power = 10
+    
+    def spawn(self):
+        self.center_x = random.randint(300, SCREEN_WIDTH-50)
+        self.center_y = random.randint(SCREEN_BUFFER+50, SCREEN_HEIGHT-SCREEN_BUFFER-50)
+
+class double_laser_powerup(Power_Up):
+
+    def __init__(self):
+        super().__init__(filename=':resources:images/items/coinSilver.png',scale=POWER_UP_SCALE,display_time = 5, effect_time = 10)
 
 # Starting Weapon
 class Player_Laser_Basic(Laser):
@@ -120,7 +130,7 @@ class Player_Double_Laser():
         laser_2 = Player_Laser_Basic()
         laser_2.fire(x_pos, y_pos + 20)
         return [laser_1,laser_2]
-        
+
 # Enemy Class
 class Enemy(arcade.Sprite):
 
@@ -171,6 +181,7 @@ class MyGame(arcade.Window):
         self.enemy_list = None          # List of enemies
         self.enemy_laser_list = None    # enemy lasers
         self.health_list = None
+        self.double_laser_upgrade_list = None
 
         # score variable
         self.score = 0
@@ -181,7 +192,7 @@ class MyGame(arcade.Window):
 
         # Resets player
         image_source = ":resources:images/space_shooter/playerShip1_orange.png"
-        self.player_sprite = Player(image_source, CHARACTER_SCALING, 100, PLAYER_SPEED, Player_Double_Laser())
+        self.player_sprite = Player(image_source, CHARACTER_SCALING, 100, PLAYER_SPEED, Player_Laser_Basic())
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 128
         self.player_sprite.turn_right(90)
@@ -191,11 +202,22 @@ class MyGame(arcade.Window):
         self.enemy_list = arcade.SpriteList()
         self.enemy_laser_list = arcade.SpriteList()
         self.health_list = arcade.SpriteList()
+        self.double_laser_upgrade_list = arcade.SpriteList()
 
         # resets the score to 0
         self.score = 0
 
     # Custom Game Methods
+
+    # checks for player collisions with other things
+    def process_player_actions(self):
+        """ checks to see if the player has collided with stuff and handles logic """
+
+        # checks to see if the player has earned an upgrade
+        for double_laser in self.double_laser_upgrade_list:
+            if check_for_collision(self.player_sprite, double_laser):
+                self.player_sprite.weapon = Player_Double_Laser()
+                double_laser.remove_from_sprite_lists()
 
     # checks for collisions for all player lasers
     def process_player_lasers(self):
@@ -216,8 +238,19 @@ class MyGame(arcade.Window):
             
             # removes enemy from game and adds value to score
             for enemy in hit_list:
+                
+                # random number of weapon upgrade logic
+                rand_num = random.randrange(1,11)
+
                 self.score += enemy.value
                 enemy.remove_from_sprite_lists()
+
+                # Advanced enemies may drop things - logic below
+                if isinstance(enemy, Enemy_Bee):
+                    if rand_num > 6:
+                        double_laser = double_laser_powerup()
+                        double_laser.spawn(enemy.center_x, enemy.center_y)
+                        self.double_laser_upgrade_list.append(double_laser)
 
             # removes laser from list if it is off screen
             if laser.center_x > SCREEN_WIDTH:
@@ -266,6 +299,15 @@ class MyGame(arcade.Window):
                 enemy.spawn()
                 self.enemy_list.append(enemy)
 
+    def power_up_logic(self, delta_time):
+        """ logic to timeout all of the powerups on the board """
+
+        # check to see if any power ups need to be removed due to time
+        for double_laser in self.double_laser_upgrade_list:
+
+            double_laser.update(delta_time)
+
+
     def health_logic(self, delta_time):
         """ logic to deistribute health on the board """
 
@@ -302,14 +344,14 @@ class MyGame(arcade.Window):
         self.process_player_lasers()
         self.process_enemy_lasers()
         self.health_logic(delta_time)
-        
+        self.process_player_actions()
+        self.power_up_logic(delta_time)
 
         # maintains 10 enemies on the screen at all times
         if len(self.enemy_list) < 10:
             enemy = Enemy_Green_Fish()
             enemy.spawn()
             self.enemy_list.append(enemy)
-        
         
         # logic to have enemies fire
         self.enemy_logic(delta_time)
@@ -326,6 +368,7 @@ class MyGame(arcade.Window):
         self.enemy_list.draw()
         self.enemy_laser_list.draw()
         self.health_list.draw()
+        self.double_laser_upgrade_list.draw()
 
         # draws the score to the screen
         score_output = f'Score: {self.score}'
@@ -349,10 +392,18 @@ class MyGame(arcade.Window):
 
         # creates a laser
         if key == arcade.key.ENTER:
-            lasers = Player_Double_Laser().fire(self.player_sprite.center_x, self.player_sprite.center_y)
-            self.player_laser_list.append(lasers[0])
-            self.player_laser_list.append(lasers[1])
-    
+            print(self.player_sprite.weapon)
+            if isinstance(self.player_sprite.weapon, Player_Double_Laser):
+                print("Double Laser")
+                lasers = Player_Double_Laser().fire(self.player_sprite.center_x, self.player_sprite.center_y)
+                self.player_laser_list.append(lasers[0])
+                self.player_laser_list.append(lasers[1])
+            else:
+                print("Single Laser")
+                laser = Player_Laser_Basic()
+                laser.fire(self.player_sprite.center_x, self.player_sprite.center_y)
+                self.player_laser_list.append(laser)
+
     def on_key_release(self, key, modifiers):
 
         # stop moving player
