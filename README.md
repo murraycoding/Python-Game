@@ -23,3 +23,6 @@ Weapons Upgrades planned and enemy types also planned. Next week, I plan to impl
 ### October 13, 2020
 Added double laser to the game. It is set as the default weapon just to test.
 By the end of the day, I was able to get the double laser to be as a weapon upgrade. If the player kills the Bee enemy. There is a chance they will drop a silver coin. If the player moves over to the silver coin, the weapon will change to a double laser. The  silver coin will automatically disapear after a set time. Right now, the weapon stays on double. I am hoping to solve the weapon cooldown period tomorrow.
+
+### October 14, 2020
+Finished adding the double laser update. When a player picks up the silver coin, they will have a double laser but only for a set time. After that, the players weapon reverts to a single laser.
