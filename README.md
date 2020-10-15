@@ -26,3 +26,6 @@ By the end of the day, I was able to get the double laser to be as a weapon upgr
 
 ### October 14, 2020
 Finished adding the double laser update. When a player picks up the silver coin, they will have a double laser but only for a set time. After that, the players weapon reverts to a single laser. Added spread laser to the game and the on press enter function now checks for the spread laser.
+
+### October 15, 2020
+Wave enemy is complete. The enemy will move in a wave pattern with a random speed and wave height. Eventually this type of enemy will take multiple hits to kill but for now it is still just a one hit kill. The enemy health update will come as a separate update to effect all enemies.
