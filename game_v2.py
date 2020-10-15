@@ -1,4 +1,5 @@
 from math import sin, cos, radians
+from random import randint
 import arcade
 import os
 import random
@@ -122,6 +123,7 @@ class Enemy_Laser_Basic(Laser):
 
     def __init__(self):
         super().__init__(filename=':resources:images/space_shooter/laserBlue01.png', scale=LASER_SCALING, damage=LASER_DAMAGE, speed=LASER_SPEED)
+        self.turn_right(180)
 
     def update(self):
         self.center_x -= self.speed
@@ -185,9 +187,14 @@ class Enemy_Bee(Enemy):
     
     def __init__(self):
         super().__init__(filename=':resources:images/enemies/bee.png',scale=ENEMY_SCALING,speed=1.5*ENEMY_SPEED, health=20, value=10)
+        self.time_on_screen = 0
+        self.wave_speed = random.randint(5*ENEMY_SPEED,15*ENEMY_SPEED)/10
+        self.wave_height = random.randint(5*ENEMY_SPEED,15*ENEMY_SPEED)/10
 
-    def update(self):
+    def on_update(self, delta_time):
+        self.time_on_screen += delta_time
         self.center_x -= self.speed
+        self.center_y += self.wave_height*sin(self.wave_speed*self.time_on_screen)
 
 # Main Game Class
 class MyGame(arcade.Window):
@@ -380,6 +387,7 @@ class MyGame(arcade.Window):
         # updates all sprites
         self.player_sprite.update()
         self.enemy_list.update()
+        self.enemy_list.on_update(delta_time)
         self.process_player_lasers()
         self.process_enemy_lasers()
         self.health_logic(delta_time)
