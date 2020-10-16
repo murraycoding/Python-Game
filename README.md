@@ -29,3 +29,6 @@ Finished adding the double laser update. When a player picks up the silver coin,
 
 ### October 15, 2020
 Wave enemy is complete. The enemy will move in a wave pattern with a random speed and wave height. Eventually this type of enemy will take multiple hits to kill but for now it is still just a one hit kill. The enemy health update will come as a separate update to effect all enemies.
+
+### October 16, 2020
+ZigZag enemy was added to the game. This is the last planned enemy type. Now, the logic comes about what enemy will come and how often it will show up.
