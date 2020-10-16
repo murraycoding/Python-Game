@@ -13,6 +13,8 @@ SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800
 SCREEN_TITLE = "Move Sprite with Keyboard Example"
 SCREEN_BUFFER = 50
+SCREEN_UPPERBOUND = SCREEN_HEIGHT - SCREEN_BUFFER
+SCREEN_LOWERBOUND = SCREEN_BUFFER
 
 CHARACTER_SCALING = 0.5
 LASER_SCALING = 0.4
@@ -174,19 +176,19 @@ class Enemy(arcade.Sprite):
         self.center_y = random.randint(SCREEN_BUFFER+50, SCREEN_HEIGHT-SCREEN_BUFFER-50)
 
 # Basic Enemy
-class Enemy_Green_Fish(Enemy):
+class Enemy_Basic(Enemy):
 
     def __init__(self):
-        super().__init__(filename=':resources:images/enemies/fishGreen.png', scale=ENEMY_SCALING, speed = random.randint(60,120)*ENEMY_SPEED/100, health=ENEMY_HEALTH, value=ENEMY_VALUE)
+        super().__init__(filename=':resources:images/enemies/mouse.png', scale=ENEMY_SCALING, speed = random.randint(60,120)*ENEMY_SPEED/100, health=ENEMY_HEALTH, value=ENEMY_VALUE)
     
     def update(self):
         self.center_x -= self.speed
 
 # Bee Enemy
-class Enemy_Bee(Enemy):
+class Enemy_Wave(Enemy):
     
     def __init__(self):
-        super().__init__(filename=':resources:images/enemies/bee.png',scale=ENEMY_SCALING,speed=1.5*ENEMY_SPEED, health=20, value=10)
+        super().__init__(filename=':resources:images/enemies/fishGreen.png',scale=ENEMY_SCALING,speed=1.5*ENEMY_SPEED, health=20, value=10)
         self.time_on_screen = 0
         self.wave_speed = random.randint(5*ENEMY_SPEED,15*ENEMY_SPEED)/10
         self.wave_height = random.randint(5*ENEMY_SPEED,15*ENEMY_SPEED)/10
@@ -196,6 +198,33 @@ class Enemy_Bee(Enemy):
         self.center_x -= self.speed
         self.center_y += self.wave_height*sin(self.wave_speed*self.time_on_screen)
 
+
+class Enemy_ZigZag(Enemy):
+
+    def __init__(self):
+        super().__init__(filename=':resources:images/enemies/bee.png',scale=ENEMY_SCALING,speed=4*ENEMY_SPEED, health=20, value=10)
+        self.time_on_screen = 0
+        self.turn_angle = random.randint(20,50)
+        self.going_up = True
+        self.turn_height = randint(50, SCREEN_HEIGHT-50)
+
+    def update(self):
+        # constant movement horizontally
+        self.center_x -= ENEMY_SPEED*cos(radians(self.turn_angle))
+        
+        # handles movement up and down
+        if self.going_up:
+            self.center_y += ENEMY_SPEED*sin(radians(self.turn_angle))
+        else: 
+            self.center_y -= ENEMY_SPEED*sin(radians(self.turn_angle))
+
+        # determines when the enemies turn
+        # up to down
+        if int(self.center_y) in range(SCREEN_UPPERBOUND - 10, SCREEN_UPPERBOUND + 10) or (self.going_up and int(self.center_y) in range(self.turn_height - 10, self.turn_height + 10)):
+            self.going_up = False
+        elif int(self.center_y) in range(SCREEN_LOWERBOUND - 10, SCREEN_LOWERBOUND + 10) or (not(self.going_up) and int(self.center_y) in range(self.turn_height - 10, self.turn_height + 10)):
+            self.going_up = True
+            
 # Main Game Class
 class MyGame(arcade.Window):
 
@@ -295,7 +324,7 @@ class MyGame(arcade.Window):
                 enemy.remove_from_sprite_lists()
 
                 # Advanced enemies may drop things - logic below
-                if isinstance(enemy, Enemy_Bee):
+                if isinstance(enemy, Enemy_Wave):
                     if rand_num > 6:
                         double_laser = double_laser_powerup()
                         double_laser.spawn(enemy.center_x, enemy.center_y)
@@ -328,7 +357,7 @@ class MyGame(arcade.Window):
         # logic to have the enemies fire
         for enemy in self.enemy_list:
 
-            odds = 200
+            odds = 400
             adj_odds = int(odds*(1/60)/delta_time)
             bee_odds = int(3*odds*(1/60)/delta_time)
             
@@ -343,7 +372,7 @@ class MyGame(arcade.Window):
                 enemy.remove_from_sprite_lists()
             
             if random.randrange(bee_odds) == 0:
-                enemy = Enemy_Bee()
+                enemy = Enemy_ZigZag()
                 enemy.spawn()
                 self.enemy_list.append(enemy)
 
@@ -396,7 +425,7 @@ class MyGame(arcade.Window):
 
         # maintains 10 enemies on the screen at all times
         if len(self.enemy_list) < 10:
-            enemy = Enemy_Green_Fish()
+            enemy = Enemy_Basic()
             enemy.spawn()
             self.enemy_list.append(enemy)
         
