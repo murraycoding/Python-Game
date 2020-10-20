@@ -6,7 +6,7 @@ import random
 from arcade.color import SCARLET
 
 from arcade.gui import UIManager
-from arcade.sprite_list import check_for_collision
+from arcade.sprite_list import check_for_collision, check_for_collision_with_list
 
 # CONSTANTS
 SCREEN_WIDTH = 1200
@@ -25,7 +25,7 @@ ENEMY_SPEED = 2
 LASER_SPEED = 8
 LASER_DAMAGE = 10
 
-ENEMY_HEALTH = 10
+ENEMY_HEALTH = 20
 ENEMY_VALUE = 5
 
 POWER_UP_SCALE = 0.5
@@ -86,7 +86,7 @@ class Power_Up(arcade.Sprite):
         self.center_x = x_pos
         self.center_y = y_pos
 
-    def update(self, delta_time):
+    def on_update(self, delta_time):
         self.time_existed += delta_time
         if self.time_existed > self.display_time:
             self.remove_from_sprite_lists()
@@ -106,6 +106,11 @@ class double_laser_powerup(Power_Up):
 
     def __init__(self):
         super().__init__(filename=':resources:images/items/coinSilver.png',scale=POWER_UP_SCALE,display_time = 5)
+
+class spread_laser_powerup(Power_Up):
+
+    def __init__(self):
+        super().__init__(filename=':resources:images/items/coinGold.png',scale=POWER_UP_SCALE,display_time = 5)
 
 # Starting Weapon
 class Player_Laser_Basic(Laser):
@@ -188,7 +193,7 @@ class Enemy_Basic(Enemy):
 class Enemy_Wave(Enemy):
     
     def __init__(self):
-        super().__init__(filename=':resources:images/enemies/fishGreen.png',scale=ENEMY_SCALING,speed=1.5*ENEMY_SPEED, health=20, value=10)
+        super().__init__(filename=':resources:images/enemies/fishGreen.png',scale=ENEMY_SCALING,speed=1.5*ENEMY_SPEED, health=ENEMY_HEALTH*1.5, value=10)
         self.time_on_screen = 0
         self.wave_speed = random.randint(5*ENEMY_SPEED,15*ENEMY_SPEED)/10
         self.wave_height = random.randint(5*ENEMY_SPEED,15*ENEMY_SPEED)/10
@@ -202,7 +207,7 @@ class Enemy_Wave(Enemy):
 class Enemy_ZigZag(Enemy):
 
     def __init__(self):
-        super().__init__(filename=':resources:images/enemies/bee.png',scale=ENEMY_SCALING,speed=4*ENEMY_SPEED, health=20, value=10)
+        super().__init__(filename=':resources:images/enemies/bee.png',scale=ENEMY_SCALING,speed=4*ENEMY_SPEED, health=ENEMY_HEALTH*2, value=10)
         self.time_on_screen = 0
         self.turn_angle = random.randint(20,50)
         self.going_up = True
@@ -245,9 +250,16 @@ class MyGame(arcade.Window):
         self.enemy_laser_list = None    # enemy lasers
         self.health_list = None
         self.double_laser_upgrade_list = None
+        self.spread_laser_upgrade_list = None
 
         # score variable
         self.score = 0
+
+        # wave information
+        self.wave_number = 0
+        self.num_basic_enemies = 0
+        self.num_wave_enemies = 0
+        self.num_zigzag_enemies = 0
 
     # sets up a new game
     def setup(self):
@@ -266,28 +278,70 @@ class MyGame(arcade.Window):
         self.enemy_laser_list = arcade.SpriteList()
         self.health_list = arcade.SpriteList()
         self.double_laser_upgrade_list = arcade.SpriteList()
+        self.spread_laser_upgrade_list = arcade.SpriteList()
 
         # resets the score to 0
         self.score = 0
 
     # Custom Game Methods
 
+    def wave_creation(self):
+        """ method to determine how many of each enemy will be in the wave"""
+
+        # adds one to the wave number
+        self.wave_number += 1
+        wave_modifier = (1+self.wave_number/10)^2
+
+        # updates the enemy health/power/speed/etc.
+        ENEMY_SPEED = 2 * wave_modifier
+        ENEMY_HEALTH = 20 * wave_modifier
+
+        # determines the number of enemies in the wave
+        self.num_basic_enemies = self.wave_number*10
+        self.num_wave_enemies = self.wave_number*5
+        self.num_zigzag_enemies = self.wave_number*3
+
     # checks for player collisions with other things
     def process_player_actions(self, delta_time):
         """ checks to see if the player has collided with stuff and handles logic """
 
-        # checks to see if the player has earned an upgrade
-        for double_laser in self.double_laser_upgrade_list:
-            if check_for_collision(self.player_sprite, double_laser):
-                weapon_upgrade = Player_Spread_Laser()
-                self.player_sprite.weapon = weapon_upgrade
-                self.player_sprite.weapon_time = weapon_upgrade.effect_time
-                double_laser.remove_from_sprite_lists()
+        weapon_upgrade = None
+
+        # checks to see if the player has hit any of the health upgrades or weapon upgrades
+        double_laser_hit_list = check_for_collision_with_list(self.player_sprite, self.double_laser_upgrade_list)
+        spread_laser_hit_list = check_for_collision_with_list(self.player_sprite, self.spread_laser_upgrade_list)
+        health_list_hit_list = check_for_collision_with_list(self.player_sprite, self.health_list)
+
+        if len(double_laser_hit_list) > 0:
+            weapon_upgrade = Player_Double_Laser()
+            for laser in double_laser_hit_list:
+                laser.remove_from_sprite_lists()
+        
+        elif len(spread_laser_hit_list) > 0:
+            weapon_upgrade = Player_Spread_Laser()
+            for laser in spread_laser_hit_list:
+                laser.remove_from_sprite_lists()
+        
+        elif len(health_list_hit_list) > 0:
+            for health in health_list_hit_list:
+                self.player_sprite.health += health.power
+                health.remove_from_sprite_lists()
+
+        if isinstance(weapon_upgrade, Player_Double_Laser) or isinstance(weapon_upgrade, Player_Spread_Laser):
+            self.player_sprite.weapon = weapon_upgrade
+            self.player_sprite.weapon_time = weapon_upgrade.effect_time
 
         # checks for player collision with any enemies
         for enemy in self.enemy_list:
             if check_for_collision(enemy, self.player_sprite):
                 self.player_sprite.health -= 5
+                if isinstance(enemy, Enemy_Basic):
+                    self.num_basic_enemies -= 1
+                elif isinstance(enemy, Enemy_Wave):
+                    self.num_wave_enemies -= 1
+                elif isinstance(enemy, Enemy_ZigZag):
+                    self.num_zigzag_enemies -= 1
+                
                 enemy.remove_from_sprite_lists()
 
         # calculates weapon upgrade effect time
@@ -318,19 +372,39 @@ class MyGame(arcade.Window):
             for enemy in hit_list:
                 
                 # random number of weapon upgrade logic
-                rand_num = random.randrange(1,11)
+                rand_num = random.randrange(1,101)
 
                 self.score += enemy.value
-                enemy.remove_from_sprite_lists()
+                enemy.health -= laser.damage
 
-                # Advanced enemies may drop things - logic below
-                if isinstance(enemy, Enemy_Wave):
-                    if rand_num > 6:
-                        double_laser = double_laser_powerup()
-                        double_laser.spawn(enemy.center_x, enemy.center_y)
-                        self.double_laser_upgrade_list.append(double_laser)
+                if enemy.health <= 0:
+                    # logic to occur after an enemy is eliminated
 
-            # removes laser from list if it is off screen
+                    # dropping weapon upgrades
+                    if isinstance(enemy, Enemy_Wave):
+                        # subtracts one from the count
+                        self.num_wave_enemies -= 1
+                        if rand_num < 60:
+                            # drops a double laser
+                            double_laser = double_laser_powerup()
+                            double_laser.spawn(enemy.center_x, enemy.center_y)
+                            self.double_laser_upgrade_list.append(double_laser)
+                    elif isinstance(enemy, Enemy_ZigZag):
+                        # subtracts one from the count
+                        self.num_zigzag_enemies -= 1
+                        if rand_num < 40:
+                            # drops a spread laser
+                            spread_laser = spread_laser_powerup()
+                            spread_laser.spawn(enemy.center_x, enemy.center_y)
+                            self.spread_laser_upgrade_list.append(spread_laser)
+                    elif isinstance(enemy, Enemy_Basic):
+                        # subtracts one from the count
+                        self.num_basic_enemies -= 1
+
+                    # removed from the game
+                    enemy.remove_from_sprite_lists()
+                
+            # removes laser from list if it is off screens
             if laser.center_x > SCREEN_WIDTH:
                 laser.remove_from_sprite_lists()
 
@@ -369,9 +443,19 @@ class MyGame(arcade.Window):
 
             # removes an enemy if they fall off screen to the left
             if enemy.center_x < 0:
+
+                # subtracts from the total number of each enemy
+                if isinstance(enemy, Enemy_Basic):
+                    self.num_basic_enemies -= 1
+                elif isinstance(enemy, Enemy_Wave):
+                    self.num_wave_enemies -= 1
+                elif isinstance(enemy, Enemy_ZigZag):
+                    self.num_zigzag_enemies -= 1
+
                 enemy.remove_from_sprite_lists()
             
             if random.randrange(bee_odds) == 0:
+                self.num_zigzag_enemies += 1
                 enemy = Enemy_ZigZag()
                 enemy.spawn()
                 self.enemy_list.append(enemy)
@@ -381,12 +465,15 @@ class MyGame(arcade.Window):
 
         # check to see if any power ups need to be removed due to time
         for double_laser in self.double_laser_upgrade_list:
-            double_laser.update(delta_time)
+            double_laser.on_update(delta_time)
+
+        for spread_laser in self.spread_laser_upgrade_list:
+            spread_laser.on_update(delta_time)
 
     def health_logic(self, delta_time):
         """ logic to deistribute health on the board """
 
-        odds = 475
+        odds = 300
         adj_odds = int(odds*(1/60)/delta_time)
 
         # generates a new health and adds it to sprite list
@@ -395,19 +482,7 @@ class MyGame(arcade.Window):
             health.spawn()
             self.health_list.append(health)
 
-        # checks for collsions and adds health to player
-        for health in self.health_list:
-
-            # collision check
-            hit = arcade.check_for_collision(self.player_sprite, health)
-
-            # if there is a hit, add health
-            if hit:
-                self.player_sprite.health += health.power
-                health.remove_from_sprite_lists()
-            
-            #updates the time on all health objects
-            health.update(delta_time)
+        self.health_list.on_update(delta_time)
 
     # UPDATE METHOD
     def on_update(self, delta_time):
@@ -428,6 +503,7 @@ class MyGame(arcade.Window):
             enemy = Enemy_Basic()
             enemy.spawn()
             self.enemy_list.append(enemy)
+            self.num_basic_enemies += 1
         
         # logic to have enemies fire
         self.enemy_logic(delta_time)
@@ -445,6 +521,7 @@ class MyGame(arcade.Window):
         self.enemy_laser_list.draw()
         self.health_list.draw()
         self.double_laser_upgrade_list.draw()
+        self.spread_laser_upgrade_list.draw()
 
         # draws the score to the screen
         score_output = f'Score: {self.score}'
@@ -453,6 +530,14 @@ class MyGame(arcade.Window):
         # draws the health to the screen
         health_output = f'Health: {self.player_sprite.health}'
         arcade.draw_text(health_output, 100, SCREEN_HEIGHT-40, arcade.color.WHITE)
+
+        #wave information to screenwwwww
+        basic_enemy_output = f'Mice: {self.num_basic_enemies}'
+        wave_enemy_output = f'Fish: {self.num_wave_enemies}'
+        zigzag_enemy_output = f'Bees: {self.num_zigzag_enemies}'
+        arcade.draw_text(basic_enemy_output, SCREEN_WIDTH - 250, SCREEN_HEIGHT-40, arcade.color.WHITE)
+        arcade.draw_text(wave_enemy_output, SCREEN_WIDTH - 175, SCREEN_HEIGHT-40, arcade.color.WHITE)
+        arcade.draw_text(zigzag_enemy_output, SCREEN_WIDTH - 100, SCREEN_HEIGHT-40, arcade.color.WHITE)
 
     def on_key_press(self, key, modifiers):
         
