@@ -32,3 +32,9 @@ Wave enemy is complete. The enemy will move in a wave pattern with a random spee
 
 ### October 16, 2020
 ZigZag enemy was added to the game. This is the last planned enemy type. Now, the logic comes about what enemy will come and how often it will show up.
+
+### October 19, 2020
+Enemy update #1 complete all enemies drop the right weapons and all movement is complete for all enemies.
+
+### October 20, 2020
+Enemy update #2 is complete. All enemies now have health and drop weapon upgrades when they die. Early stages of wave updates are also in place for the wave mechanic to be introduced tomorrow.
