@@ -4,18 +4,19 @@ import arcade
 import os
 import random
 from arcade.color import SCARLET
+import time
 
 from arcade.gui import UIManager
 from arcade.sprite_list import check_for_collision, check_for_collision_with_list
 
 # Verison 3.0
 # This version of the game will have:
-# -> A view for the start of the game
-# -> A Button to start the wave (or just a time delay)
-# -> Logic to end the wave and start a new wave
-# -> View to show the score and health
-# -> Log to end the game at zero health
-# -> View for game over
+# -> A view for the start of the game (done)
+# -> A Button to start the wave (or just a time delay) (time delay done)
+# -> Logic to end the wave and start a new wave (done)
+# -> View to show the score and health 
+# -> Log to end the game at zero health (done)
+# -> View for game over (done)
 
 # CONSTANTS
 SCREEN_WIDTH = 1200
@@ -356,10 +357,23 @@ class MyGame(arcade.View):
         ENEMY_SPEED = 2 * wave_modifier
         ENEMY_HEALTH = 20 * wave_modifier
 
+        # sleeps for 5 seconds to give the player an indication of the next wave
+        print('program is sleeping')
+        time.sleep(1)
+
         # determines the number of enemies in the wave
         self.num_basic_enemies = self.wave_number*10
         self.num_wave_enemies = self.wave_number*5
         self.num_zigzag_enemies = self.wave_number*3
+
+        
+
+    # checks for next wave
+    def check_next_wave(self):
+        """ checks to see if the game is ready for the next wave """
+        if len(self.enemy_list) == 0 and self.score > 0 and self.num_basic_enemies == 0 and self.num_wave_enemies == 0 and self.num_zigzag_enemies ==0:
+            self.wave_creation()
+
 
     # checks for player collisions with other things
     def process_player_actions(self, delta_time):
@@ -481,8 +495,6 @@ class MyGame(arcade.View):
         wave_enemy_odds = random.randrange(int(2*odds*(1/60)/delta_time))
         zigzag_enemy_odds = random.randrange(int(2*odds*(1/60)/delta_time))
 
-
-
         # basic enemies
         if self.num_basic_enemies > 0:
             if basic_enemy_odds == 0:
@@ -569,7 +581,10 @@ class MyGame(arcade.View):
         self.enemy_logic(delta_time)
 
         # logic to check to see if the player has died
-        self.check_game_over() 
+        self.check_game_over()
+
+        # checks for the next wave
+        self.check_next_wave()
     
     # DRAW METHOD
     def on_draw(self):
