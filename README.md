@@ -38,3 +38,9 @@ Enemy update #1 complete all enemies drop the right weapons and all movement is 
 
 ### October 20, 2020
 Enemy update #2 is complete. All enemies now have health and drop weapon upgrades when they die. Early stages of wave updates are also in place for the wave mechanic to be introduced tomorrow.
+
+### October 21, 2020
+Final details of wave mechanics complete. The only thing left to do is add the logic to start a new wave once the old save is completed.
+
+### October 22, 2020
+Added logic for a game over at zero health and a game over screen. Working on the "next wave" mechanic yet.
