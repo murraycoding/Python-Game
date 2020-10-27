@@ -358,8 +358,7 @@ class MyGame(arcade.View):
         ENEMY_HEALTH = 20 * wave_modifier
 
         # sleeps for 5 seconds to give the player an indication of the next wave
-        print('program is sleeping')
-        time.sleep(1)
+        time.sleep(2)
 
         # determines the number of enemies in the wave
         self.num_basic_enemies = self.wave_number*10
@@ -624,7 +623,8 @@ class MyGame(arcade.View):
             self.player_sprite.change_y = PLAYER_SPEED
         elif key == arcade.key.S:
             self.player_sprite.change_y = -PLAYER_SPEED
-        elif key == arcade.key.D:
+
+        if key == arcade.key.D:
             self.player_sprite.change_x = PLAYER_SPEED
         elif key == arcade.key.A:
             self.player_sprite.change_x = -PLAYER_SPEED
@@ -651,6 +651,36 @@ class MyGame(arcade.View):
             self.player_sprite.change_y = 0
         elif key == arcade.key.A or key == arcade.key.D:
             self.player_sprite.change_x = 0
+
+    def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
+
+        # difference between the mouse pos and player pos
+        x_diff = x - self.player_sprite.center_x
+        y_diff = y - self.player_sprite.center_y
+
+        # factor to slow the movement
+        slow_factor = 20
+
+        self.player_sprite.center_x += x_diff/slow_factor
+        self.player_sprite.center_y += y_diff/slow_factor
+
+    def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
+
+        # left click to fire weapon
+        if button == 1:
+            # checks to see what type of weapon to generate
+            if isinstance(self.player_sprite.weapon, Player_Double_Laser):
+                lasers = Player_Double_Laser().fire(self.player_sprite.center_x, self.player_sprite.center_y)
+                self.player_laser_list.append(lasers[0])
+                self.player_laser_list.append(lasers[1])
+            elif isinstance(self.player_sprite.weapon, Player_Spread_Laser):
+                lasers = Player_Spread_Laser().fire(self.player_sprite.center_x, self.player_sprite.center_y)
+                for laser in lasers:
+                    self.player_laser_list.append(laser)
+            else:
+                laser = Player_Laser_Basic()
+                laser.fire(self.player_sprite.center_x, self.player_sprite.center_y)
+                self.player_laser_list.append(laser)
 
 def main():
     """ main method """
