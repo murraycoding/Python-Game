@@ -5,6 +5,7 @@ import os
 import random
 from arcade.color import SCARLET
 import time
+import csv
 
 from arcade.gui import UIManager
 from arcade.sprite_list import check_for_collision, check_for_collision_with_list
@@ -241,7 +242,6 @@ class Enemy_ZigZag(Enemy):
         elif int(self.center_y) in range(SCREEN_LOWERBOUND - 10, SCREEN_LOWERBOUND + 10) or (not(self.going_up) and int(self.center_y) in range(self.turn_height - 10, self.turn_height + 10)):
             self.going_up = True
 
-
 # start screen view
 class Start_Screen_View(arcade.View):
 
@@ -269,9 +269,10 @@ class Start_Screen_View(arcade.View):
 class Game_Over_View(arcade.View):
     """ view to show when the game is over """
 
-    def __init__(self):
+    def __init__(self, score):
         """ this is run once when we switch to this view """
         super().__init__()
+        self.score = score
 
         # resets the viewport
         arcade.set_viewport(0, SCREEN_WIDTH - 1, 0, SCREEN_HEIGHT - 1)
@@ -279,7 +280,12 @@ class Game_Over_View(arcade.View):
     def on_draw(self):
         """ draw this view """
         arcade.start_render()
-        arcade.draw_text("Game Over Click to advance", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2-75, arcade.color.WHITE, font_size=20, anchor_x="center")
+        arcade.draw_text(f"Game Over / Score: {self.score} / Click to advance", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2-75, arcade.color.WHITE, font_size=20, anchor_x="center")
+
+    def write_leaderboard(self):
+        with open('leaderboard.csv', 'a', newline='') as csvfile:
+            leaderboard = csv.writer(csvfile,delimiter=' ')
+            leaderboard.writerow(['Brian',self.score])
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         """ if the user presses the mouse button, restart the game """
@@ -358,7 +364,7 @@ class MyGame(arcade.View):
         ENEMY_HEALTH = 20 * wave_modifier
 
         # sleeps for 5 seconds to give the player an indication of the next wave
-        time.sleep(2)
+        time.sleep(1)
 
         # determines the number of enemies in the wave
         self.num_basic_enemies = self.wave_number*10
@@ -559,7 +565,23 @@ class MyGame(arcade.View):
     # game over checker method
     def check_game_over(self):
         if self.player_sprite.health <= 0:
-            game_over_view = Game_Over_View()
+
+            # starts the game over view
+            game_over_view = Game_Over_View(self.score)
+
+            # reads csv for leaderboard scores
+            with open('leaderboard.csv', newline='') as csvfile:
+                leaderboard = csv.reader(csvfile, delimiter=',')
+            
+                for row in leaderboard:
+                    if self.score > int(row[1]):
+                        print("The score is higher")
+            
+            # checks to see if the score is the top 5 scores
+
+
+
+            # game_over_view.write_leaderboard()
             self.window.show_view(game_over_view)
 
     # UPDATE METHOD
@@ -608,7 +630,7 @@ class MyGame(arcade.View):
         health_output = f'Health: {self.player_sprite.health}'
         arcade.draw_text(health_output, 100, SCREEN_HEIGHT-40, arcade.color.WHITE)
 
-        #wave information to screenwwwww
+        # wave information to screen
         basic_enemy_output = f'Mice: {self.num_basic_enemies}'
         wave_enemy_output = f'Fish: {self.num_wave_enemies}'
         zigzag_enemy_output = f'Bees: {self.num_zigzag_enemies}'
