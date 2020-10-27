@@ -44,3 +44,6 @@ Final details of wave mechanics complete. The only thing left to do is add the l
 
 ### October 22, 2020
 Added logic for a game over at zero health and a game over screen. Working on the "next wave" mechanic yet.
+
+### October 26, 2020
+Added mouse controls for the game. Move the mouse to move the ship and press the left mouse key for firing the weapon.
