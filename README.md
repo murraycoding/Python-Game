@@ -47,3 +47,6 @@ Added logic for a game over at zero health and a game over screen. Working on th
 
 ### October 26, 2020
 Added mouse controls for the game. Move the mouse to move the ship and press the left mouse key for firing the weapon.
+
+### October 27, 2020
+Added a leaderboard and score now displays after the player dies. The leaderboard functionality of posting to the leaderboard has not been finalized yet.
