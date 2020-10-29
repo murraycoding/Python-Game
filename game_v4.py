@@ -195,7 +195,7 @@ class Enemy_Basic(Enemy):
 class Enemy_Wave(Enemy):
     
     def __init__(self):
-        super().__init__(filename=':resources:images/enemies/fishGreen.png',scale=ENEMY_SCALING,speed=1.5*ENEMY_SPEED, health=ENEMY_HEALTH*1.5, value=10)
+        super().__init__(filename=':resources:images/enemies/fishGreen.png',scale=ENEMY_SCALING,speed=1.5*ENEMY_SPEED, health=ENEMY_HEALTH*1.5, value=2*ENEMY_VALUE)
         self.time_on_screen = 0
         self.wave_speed = random.randint(5*ENEMY_SPEED,15*ENEMY_SPEED)/10
         self.wave_height = random.randint(5*ENEMY_SPEED,15*ENEMY_SPEED)/10
@@ -209,7 +209,7 @@ class Enemy_Wave(Enemy):
 class Enemy_ZigZag(Enemy):
 
     def __init__(self):
-        super().__init__(filename=':resources:images/enemies/bee.png',scale=ENEMY_SCALING,speed=4*ENEMY_SPEED, health=ENEMY_HEALTH*2, value=10)
+        super().__init__(filename=':resources:images/enemies/bee.png',scale=ENEMY_SCALING,speed=4*ENEMY_SPEED, health=ENEMY_HEALTH*2, value=3*ENEMY_VALUE)
         self.time_on_screen = 0
         self.turn_angle = random.randint(20,50)
         self.going_up = True
