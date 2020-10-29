@@ -50,3 +50,6 @@ Added mouse controls for the game. Move the mouse to move the ship and press the
 
 ### October 27, 2020
 Added a leaderboard and score now displays after the player dies. The leaderboard functionality of posting to the leaderboard has not been finalized yet.
+
+### October 28, 2020
+Leaderboard logic is complete except for displaying the leaderboard when the game ends (or begins). Users will enter their name at the start of the game and the game will check their score against the current leaderboard. If it should be placed in the leaderboard, it will insert the name and score in the appropriate place in the leaderboard. This is all via reading an external csv file.
