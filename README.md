@@ -1,7 +1,38 @@
 # Python-Game
 
 ## Game Overview
-This game will be a side view space shooter game. The player may move forward or back and up and down within the play field. The player will use weapons and sheilds to attack other enemies and defend itself against attacks from other enemies. Each level will be a set length and the playable area will move along the level.
+This game is a space shooter game. At the current moment in development, directions and a tutorial are not built-in to the game itself. Please read below for controls and an overview of the game.
+
+### Object of the game
+The object of the game is to defeat enemies and avoid taking damage to survive wave after wave of enemies. As the player, you can **move up, down, left and right** over the whole game screen by using the **mouse** or the **WASD** keys. To **attack** enemies you can fire your laser by pressing the **enter** key or clicking the **left mouse button**.
+
+### Enemies
+Each wave will have a set number of enemies. There are three types of enemies in the game:
+
+- Mouse (5 points): This enemy moves in a straight line.
+- Fish (10 points): This enemy moves in a wave pattern and may drop a silver coin.
+- Bees (15 points): This enemy moves in a zig-zag pattern
+
+All enemies have randomized movement within their type of movement. The mice move at randomized speeds, the fish all move with different amplitudes of the wave and move up and down through the wave at a different speed and the bees move at a random zig zag pattern. Each bee will turn around at a random place on the screen. All enemies also fire their lasers at random times. This randomness make each game different and exciting! The coins refered to in the enemy description are weapon upgrades (see that section for more information). Please note that those enemies have just a random chance of dropping the coins for the upgrade.
+
+While each game is different, the constant in the game is the number of enemies per wave. Each wave has a set number of enemies. The number of enemies left in the wave can be found at the top left corner of the screen. Please not the number indicates the number of enemies left to be spawned on screen so it does not include the ones already on screen. Each wave the enemies become more difficult too. The enemy speed and health goes up each wave.
+
+### Weapon upgrades
+Weapon Upgrades come in the form of silver or gold coins dropped by certain enemies. Collecting a coin will grant you a temporary weapon upgrade! The silver coins result in a double laser where two lasers will fire with each click of the mouse (or enter button). The gold coins will grant you a spread laser! The spread laser fires 5 lasers at once in a burst pattern all shooting out in different directions. Each coin will only be available for pick up for short time and the weapon upgrades also only last for a short time so use them wisely!
+
+### Extra health
+Randomly on screen, green keys will appear. Each one of these keys will grant the player 10 extra health. Each key will only be available on screen for a short time.
+
+### Game Over
+Once the players health reaches 0, the game is over. The game over screen will show the player score and the leaderboard for the game. If the player has scored high enough to be counted in the leaderboard, their name will display in the leaderboard.
+
+### Leaderboard
+Within the game, their should be a csv file to contain the leaderboard. If you are running this code on your own loacal machine. Make sure to have the csv file in place so the game can record the high scores.
+
+## What this game is missing
+At this point in development, the game is perfectly playable in its final form (for now). In the future, I would like to add some "polish" to the game. For example, the leaderboard just displays as plain text on the screen instead of in a nicely formatted table. The background also is just a plain play background instead of a cool space theme. The enemies are also just stock images from the Python Arcade library. These are all things I plan to change when I do work on the game again.
+
+My challenge to myself was to learn a game library and make a playable game during the month of October working mostly just during my extra time on weekdays. Next month I have a new project to work on but I do plan to go back to this to give the game more "polish". Below you can read about the humble benginnings of the game in the development updates.
 
 ## Game Development Updates
 
