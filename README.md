@@ -27,7 +27,7 @@ Randomly on screen, green keys will appear. Each one of these keys will grant th
 Once the players health reaches 0, the game is over. The game over screen will show the player score and the leaderboard for the game. If the player has scored high enough to be counted in the leaderboard, their name will display in the leaderboard.
 
 ### Leaderboard
-Within the game, their should be a csv file to contain the leaderboard. If you are running this code on your own loacal machine. Make sure to have the csv file in place so the game can record the high scores.
+Within the game, there should be a csv file to contain the leaderboard. If you are running this code on your own loacal machine. Make sure to have the csv file in place so the game can record the high scores.
 
 ## What this game is missing
 At this point in development, the game is perfectly playable in its final form (for now). In the future, I would like to add some "polish" to the game. For example, the leaderboard just displays as plain text on the screen instead of in a nicely formatted table. The background also is just a plain play background instead of a cool space theme. The enemies are also just stock images from the Python Arcade library. These are all things I plan to change when I do work on the game again.
