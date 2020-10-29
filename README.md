@@ -71,16 +71,19 @@ Enemy update #1 complete all enemies drop the right weapons and all movement is 
 Enemy update #2 is complete. All enemies now have health and drop weapon upgrades when they die. Early stages of wave updates are also in place for the wave mechanic to be introduced tomorrow.
 
 ### October 21, 2020
-Final details of wave mechanics complete. The only thing left to do is add the logic to start a new wave once the old save is completed.
+Final details of wave mechanics complete. The only thing left to do is add the logic to start a new wave once the old wave is completed.
 
 ### October 22, 2020
-Added logic for a game over at zero health and a game over screen. Working on the "next wave" mechanic yet.
+Added logic for a game over at zero health and a game over screen. Working on the "next wave" mechanic now.
 
 ### October 26, 2020
 Added mouse controls for the game. Move the mouse to move the ship and press the left mouse key for firing the weapon.
 
 ### October 27, 2020
-Added a leaderboard and score now displays after the player dies. The leaderboard functionality of posting to the leaderboard has not been finalized yet.
+Added a leaderboard and score now displays after the player dies. The leaderboard functionality of posting to the leaderboard has not been finalized yet. The game also includes an area to ask for the players name at the start of the game. This will be posted to the leaderboard if the score is high enough.
 
 ### October 28, 2020
 Leaderboard logic is complete except for displaying the leaderboard when the game ends (or begins). Users will enter their name at the start of the game and the game will check their score against the current leaderboard. If it should be placed in the leaderboard, it will insert the name and score in the appropriate place in the leaderboard. This is all via reading an external csv file.
+
+### October 29, 2020
+All planned game mechanics are complete and working. As stated above in the "What this game is missing" section, I would like to at some point in the future include more polish to the game. Despite this, I have met my own challenge and gone from start to finish in a month. From learning a new game library to building a game in just under a month!
