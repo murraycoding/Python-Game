@@ -7,13 +7,13 @@ from arcade.color import NADESHIKO_PINK, SCARLET
 import time
 import csv
 
-from arcade.gui import UIManager, UIInputBox, TEXT_INPUT
+from arcade.gui import UIManager
 from arcade.sprite_list import check_for_collision, check_for_collision_with_list
 
 # CONSTANTS
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800
-SCREEN_TITLE = "Move Sprite with Keyboard Example"
+SCREEN_TITLE = "Brian Murray's Python Game"
 SCREEN_BUFFER = 50
 SCREEN_UPPERBOUND = SCREEN_HEIGHT - SCREEN_BUFFER
 SCREEN_LOWERBOUND = SCREEN_BUFFER
@@ -239,9 +239,9 @@ class Start_Screen_View(arcade.View):
         super().__init__()
         self.ui_manager = UIManager()
         self.name = ""
-        self.name_input = arcade.gui.UIInputBox(
-            center_x = SCREEN_WIDTH/2,
-            center_y = SCREEN_HEIGHT/2,
+        self.name_input = arcade.gui.UIInputText(
+            x = SCREEN_WIDTH/2,
+            y = SCREEN_HEIGHT/2,
             width = 300,
             height = 40
         )
@@ -255,7 +255,7 @@ class Start_Screen_View(arcade.View):
         arcade.set_viewport(0, SCREEN_WIDTH-1, 0, SCREEN_HEIGHT-1)
 
         # draws the input box to the screen
-        self.ui_manager.add_ui_element(self.name_input)
+        self.ui_manager.add(self.name_input)
 
     # on draw method
     def on_draw(self):
@@ -268,7 +268,7 @@ class Start_Screen_View(arcade.View):
         """ If the user presses enter, the game starts """
         if key == 65293: # enter key = 65293
             self.name = self.name_input.text
-            self.ui_manager.purge_ui_elements()
+            self.ui_manager.clear()
             game_view = MyGame(self.name)
             game_view.setup()
             self.window.show_view(game_view)
